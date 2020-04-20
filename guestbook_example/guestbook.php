@@ -12,9 +12,10 @@ if (isset($_GET['cmd']) === true) {
   $port = getenv('REDIS_PORT');
   $password = getenv('REDIS_PASSWORD');
   $client = new Predis\Client([
-    'scheme' => 'tcp',
-    'host'   => $host,
-    'port'   => $port,
+    'scheme'   => 'tcp',
+    'host'     => $host,
+    'port'     => $port,
+    'password' => $password,
   ]);
   header('Content-Type: application/json');
   if ($_GET['cmd'] == 'set') {

@@ -6,7 +6,6 @@ metadata:
 spec:
   redisEnterpriseCluster:
     name: "redis-enterprise"
-  replication: true
 
 ---
 apiVersion: extensions/v1beta1
@@ -28,6 +27,7 @@ spec:
       containers:
         - name: guestbook
           image: roeyredislabs/guestbook:latest
+          imagePullPolicy: Always
           env:
             - name: REDIS_HOST
               valueFrom:
