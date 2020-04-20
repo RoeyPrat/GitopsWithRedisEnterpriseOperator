@@ -1,0 +1,25 @@
+name: guestbook
+# docker build and push the guest book app
+
+on:
+  push:
+    branches: [ master ]
+
+jobs:
+  build_and_push_guestbook:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v2
+        name: Check out code
+
+      - uses: mr-smithers-excellent/docker-build-push@v3
+        name: Build & push Docker image
+        with:
+          image: roeyredislabs/guestbook
+          tag: latest
+          registry: docker.io
+          directory: guestbook_example
+          dockerfile: guestbook_example/Dockerfile
+          username: ${{ secrets.DOCKER_USERNAME }}
+          password: ${{ secrets.DOCKER_PASSWORD }}
