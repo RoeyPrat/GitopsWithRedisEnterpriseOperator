@@ -1,0 +1,63 @@
+---
+apiVersion: app.redislabs.com/v1alpha1
+kind: RedisEnterpriseDatabase
+metadata:
+  name: "redis-enterprise-database"
+spec:
+  redisEnterpriseCluster:
+    name: "redis-enterprise"
+
+---
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  name: redis-commander
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: redis-commander
+      name: redis-commander
+  template:
+    metadata:
+      labels:
+        app: redis-commander
+        name: redis-commander
+    spec:
+      containers:
+        - name: redis-commander
+          image: rediscommander/redis-commander
+          env:
+            - name: REDIS_HOST
+              valueFrom:
+                secretKeyRef:
+                  name: redb-redis-enterprise-database
+                  key: service_name
+            - name: REDIS_PORT
+              valueFrom:
+                secretKeyRef:
+                  name: redb-redis-enterprise-database
+                  key: port
+            - name: REDIS_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: redb-redis-enterprise-database
+                  key: password
+          ports:
+            - name: redis-commander
+              containerPort: 8081
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: redis-commander
+spec:
+  ports:
+    - port: 8081
+      protocol: TCP
+      targetPort: 8081
+  selector:
+    app: redis-commander
+    name: redis-commander
+  type: LoadBalancer
+---
