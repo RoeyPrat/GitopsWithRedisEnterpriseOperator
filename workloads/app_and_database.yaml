@@ -14,7 +14,7 @@ kind: Deployment
 metadata:
   name: guestbook
 spec:
-  replicas: 2
+  replicas: 1
   selector:
     matchLabels:
       app: guestbook
