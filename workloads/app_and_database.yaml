@@ -1,64 +1,64 @@
----
-apiVersion: app.redislabs.com/v1alpha1
-kind: RedisEnterpriseDatabase
-metadata:
-  name: "guestbook-database"
-spec:
-  redisEnterpriseCluster:
-    name: "redis-enterprise"
-  replication: true
----
-apiVersion: extensions/v1beta1
-kind: Deployment
-metadata:
-  name: guestbook
-spec:
-  replicas: 1
-  selector:
-    matchLabels:
-      app: guestbook
-      name: guestbook
-  template:
-    metadata:
-      labels:
-        app: guestbook
-        name: guestbook
-    spec:
-      containers:
-        - name: guestbook
-          image: roeyredislabs/guestbook:latest
-          imagePullPolicy: Always
-          env:
-            - name: REDIS_HOST
-              valueFrom:
-                secretKeyRef:
-                  name: redb-guestbook-database
-                  key: service_name
-            - name: REDIS_PORT
-              valueFrom:
-                secretKeyRef:
-                  name: redb-guestbook-database
-                  key: port
-            - name: REDIS_PASSWORD
-              valueFrom:
-                secretKeyRef:
-                  name: redb-guestbook-database
-                  key: password
-          ports:
-            - name: guestbook
-              containerPort: 80
----
-apiVersion: v1
-kind: Service
-metadata:
-  name: guestbook
-spec:
-  ports:
-    - port: 80
-      protocol: TCP
-      targetPort: 80
-  selector:
-    app: guestbook
-    name: guestbook
-  type: LoadBalancer
----
+#---
+#apiVersion: app.redislabs.com/v1alpha1
+#kind: RedisEnterpriseDatabase
+#metadata:
+#  name: "guestbook-database"
+#spec:
+#  redisEnterpriseCluster:
+#    name: "redis-enterprise"
+#  replication: false
+#---
+#apiVersion: extensions/v1beta1
+#kind: Deployment
+#metadata:
+#  name: guestbook
+#spec:
+#  replicas: 1
+#  selector:
+#    matchLabels:
+#      app: guestbook
+#      name: guestbook
+#  template:
+#    metadata:
+#      labels:
+#        app: guestbook
+#        name: guestbook
+#    spec:
+#      containers:
+#        - name: guestbook
+#          image: roeyredislabs/guestbook:latest
+#          imagePullPolicy: Always
+#          env:
+#            - name: REDIS_HOST
+#              valueFrom:
+#                secretKeyRef:
+#                  name: redb-guestbook-database
+#                  key: service_name
+#            - name: REDIS_PORT
+#              valueFrom:
+#                secretKeyRef:
+#                  name: redb-guestbook-database
+#                  key: port
+#            - name: REDIS_PASSWORD
+#              valueFrom:
+#                secretKeyRef:
+#                  name: redb-guestbook-database
+#                  key: password
+#          ports:
+#            - name: guestbook
+#              containerPort: 80
+#---
+#apiVersion: v1
+#kind: Service
+#metadata:
+#  name: guestbook
+#spec:
+#  ports:
+#    - port: 80
+#      protocol: TCP
+#      targetPort: 80
+#  selector:
+#    app: guestbook
+#    name: guestbook
+#  type: LoadBalancer
+#---
