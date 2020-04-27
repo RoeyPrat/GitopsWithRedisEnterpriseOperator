@@ -1,0 +1,40 @@
+## REDB Admission Controller Setup
+
+In order to enable the REDB admission controller one has to deploy
+
+1. ClusterRole that allows creation and watching of CertificateSigningRequest resources
+2. namespaced Role that allows creation and reading of Secrets and RedisEnterprise resources
+3. ServiceAccount for admission controller to run as
+4. Binding ClusterRole and namespaced Role to the service account
+5. TLS Key generator and Signing Requester + Admission Controller HTTP Server
+6. Kubernetes Service that is used to access the Admission Control HTTP Server
+7. ValditingWebhookConfiguration to tell kubernetes to validate all REDB objects through the dynamic admission controller
+
+one installs them via a bundle:
+
+```bash
+kubectl create -f admission_bundle.yaml
+```
+
+and waits for the CSR to ready and approves it:
+
+```bash
+kubectl certificate approve admission-tls
+```
+
+and modifies the webhook to use the certificate generated.
+
+```bash
+# save cert
+CERT=`kubectl get csr admission-tls -o jsonpath='{.status.certificate}'`
+# create patch file
+cat > modified-webhook.yaml <<EOF
+webhooks:
+- admissionReviewVersions:
+  clientConfig:
+    caBundle: $CERT
+  name: redb.admission.redislabs
+EOF
+# patch webhook with caBundle
+kubectl patch ValidatingWebhookConfiguration redb-admission --patch "$(cat modified-webhook.yaml)"
+```
